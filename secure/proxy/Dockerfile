@@ -1,3 +1,3 @@
-FROM jwilder/nginx-proxy:alpine
+FROM rpi-nginx-proxy
 
 COPY uploadsize.conf /etc/nginx/conf.d/uploadsize.conf

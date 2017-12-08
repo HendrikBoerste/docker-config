@@ -29,9 +29,9 @@ services:
     volumes:
       - nextcloud:/var/www/html:ro
     environment:
-      - VIRTUAL_HOST=
-      - LETSENCRYPT_HOST=
-      - LETSENCRYPT_EMAIL=
+      - VIRTUAL_HOST=itprojekt-hendrik.duckdns.org
+      - LETSENCRYPT_HOST=itprojekt-hendrik.duckdns.org
+      - LETSENCRYPT_EMAIL=hendrik.boerste@gmail.com
     depends_on:
       - app
     networks:
@@ -56,7 +56,7 @@ services:
       - proxy-tier
 
   letsencrypt-companion:
-    image: jrcs/letsencrypt-nginx-proxy-companion
+    image: rpi-docker-letsencrypt-nginx-proxy-companion
     restart: always
     volumes:
       - certs:/etc/nginx/certs
