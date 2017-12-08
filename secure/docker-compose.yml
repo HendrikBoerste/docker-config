@@ -2,7 +2,7 @@ version: '3'
 
 services:
   db:
-    image: mysql
+    image: hypriot/rpi-mysql
     restart: always
     volumes:
       - db:/var/lib/mysql
