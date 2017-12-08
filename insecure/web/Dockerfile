@@ -1,3 +1,3 @@
-FROM arm64v8/nginx
+FROM nginx
 
 COPY nginx.conf /etc/nginx/nginx.conf
