@@ -9,8 +9,7 @@ services:
     deploy:
       replicas: 1
       placement:
-        constraint:
-          - node.role == worker
+        constraints: [node.role == manager]
     environment:
       - MYSQL_ROOT_PASSWORD=test123
     env_file:
@@ -24,8 +23,7 @@ services:
     deploy:
       replicas: 1
       placement:
-        constraint:
-          - node.role == manager
+        constraints: [node.role == manager]
     environment:
       - MYSQL_HOST=db
     env_file:
@@ -41,8 +39,7 @@ services:
     deploy:
       replicas: 1
       placement:
-        constraint:
-          - node.role == manager
+        constraints: [node.role == manager]
     environment:
       - VIRTUAL_HOST=itprojekt-nextcloud.duckdns.org
       - LETSENCRYPT_HOST=itprojekt-nextcloud.duckdns.org
@@ -75,8 +72,7 @@ services:
     deploy:
       replicas: 1
       placement:
-        constraint:
-          - node.role == manager
+        constraints: [node.role == manager]
     networks:
       - proxy-tier
 
@@ -92,8 +88,7 @@ services:
     deploy:
       replicas: 1
       placement:
-        constraint:
-          - node.role == manager
+        constraints: [node.role == manager]
     environment:
       - ACME_TOS_HASH=cc88d8d9517f490191401e7b54e9ffd12a2b9082ec7a1d4cec6101f9f1647e7b
     networks:
@@ -112,8 +107,7 @@ services:
       deploy:
         replicas: 1
         placement:
-          constraint:
-            - node.role == manager
+          constraints: [node.role == manager]
 
   prosody:
     image: rpi-prosody
@@ -136,8 +130,7 @@ services:
     deploy:
       replicas: 1
       placement:
-        constraint:
-          - node.role == worker
+        constraints: [node.role == manager]
 
 
 volumes:
