@@ -34,6 +34,8 @@ services:
   web:
     image: secure_web
     restart: always
+    ports:
+      - 8080:80
     volumes:
       - nextcloud:/var/www/html:ro
     deploy:
@@ -41,8 +43,8 @@ services:
       placement:
         constraints: [node.role == manager]
     environment:
-      - VIRTUAL_HOST=itprojekt-nextcloud.duckdns.org
-      - LETSENCRYPT_HOST=itprojekt-nextcloud.duckdns.org
+      - VIRTUAL_HOST=localhost
+      - LETSENCRYPT_HOST=localhost
       - LETSENCRYPT_EMAIL=hendrik.boerste@gmail.com
     depends_on:
       - app
@@ -54,7 +56,6 @@ services:
     image: secure_proxy
     restart: always
     ports:
-      - 80:80
       - 443:443
     labels:
       com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
@@ -104,7 +105,7 @@ services:
           constraints: [node.role == manager]
 
   prosody:
-    image: rpi-prosody
+    image: rpi-prosody-local
     restart: always
     ports:
       - 5000:50000
@@ -113,14 +114,7 @@ services:
       - 5280:5280
       - 5281:5281
     volumes:
-      - /etc/nginx/certs/itprojekt-nextcloud.duckdns.org/key.pem:/usr/local/etc/prosody/certs/prosody.key
-      - /etc/nginx/certs/itprojekt-nextcloud.duckdns.org/fullchain.pem:/usr/local/etc/prosody/certs/prosody.crt
       - ./prosody:/usr/local/var/lib/prosody
-    environment:
-      - DOMAIN=itprojekt-nextcloud.duckdns.org
-      - VIRTUAL_HOST=itprojekt-nextcloud.duckdns.org
-      - LETSENCRYPT_HOST=itprojekt-nextcloud.duckdns.org
-      - LETSENCRYPT_EMAIL=hendrik.boerste@gmail.com
     deploy:
       replicas: 1
       placement:
