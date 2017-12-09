@@ -101,30 +101,6 @@ services:
         placement:
           constraints: [node.role == manager]
 
-  prosody:
-    image: rpi-prosody
-    restart: always
-    ports:
-      - 5000:50000
-      - 5222:5222
-      - 5269:5269
-      - 5280:5280
-      - 5281:5281
-    volumes:
-      - /etc/nginx/certs/itprojekt-nextcloud.duckdns.org/key.pem:/usr/local/etc/prosody/certs/prosody.key
-      - /etc/nginx/certs/itprojekt-nextcloud.duckdns.org/fullchain.pem:/usr/local/etc/prosody/certs/prosody.crt
-      - ./prosody:/usr/local/var/lib/prosody
-    environment:
-      - DOMAIN=itprojekt-nextcloud.duckdns.org
-      - VIRTUAL_HOST=itprojekt-nextcloud.duckdns.org
-      - LETSENCRYPT_HOST=itprojekt-nextcloud.duckdns.org
-      - LETSENCRYPT_EMAIL=hendrik.boerste@gmail.com
-    deploy:
-      replicas: 1
-      placement:
-        constraints: [node.role == manager]
-
-
 volumes:
   db:
   nextcloud:

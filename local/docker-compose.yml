@@ -102,23 +102,6 @@ services:
         placement:
           constraints: [node.role == manager]
 
-  prosody:
-    image: rpi-prosody-local
-    restart: always
-    ports:
-      - 5000:50000
-      - 5222:5222
-      - 5269:5269
-      - 5280:5280
-      - 5281:5281
-    volumes:
-      - ./prosody:/usr/local/var/lib/prosody
-    deploy:
-      replicas: 1
-      placement:
-        constraints: [node.role == worker]
-
-
 volumes:
   db:
   nextcloud:
