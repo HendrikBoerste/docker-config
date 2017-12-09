@@ -6,6 +6,11 @@ services:
     restart: always
     volumes:
       - db:/var/lib/mysql
+    deploy:
+      replicas: 1
+      placement:
+        constraint:
+          - node.role == worker
     environment:
       - MYSQL_ROOT_PASSWORD=test123
     env_file:
@@ -16,6 +21,11 @@ services:
     restart: always
     volumes:
       - nextcloud:/var/www/html
+    deploy:
+      replicas: 1
+      placement:
+        constraint:
+          - node.role == manager
     environment:
       - MYSQL_HOST=db
     env_file:
@@ -24,10 +34,15 @@ services:
       - db
 
   web:
-    build: ./web
+    image: secure_web
     restart: always
     volumes:
       - nextcloud:/var/www/html:ro
+    deploy:
+      replicas: 1
+      placement:
+        constraint:
+          - node.role == manager
     environment:
       - VIRTUAL_HOST=itprojekt-nextcloud.duckdns.org
       - LETSENCRYPT_HOST=itprojekt-nextcloud.duckdns.org
@@ -39,11 +54,16 @@ services:
       - default
 
   proxy:
-    build: ./proxy
+    image: secure_proxy
     restart: always
     ports:
       - 80:80
       - 443:443
+      - 5000:50000
+      - 5222:5222
+      - 5269:5269
+      - 5280:5280
+      - 5281:5281
     labels:
       com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
     volumes:
@@ -52,6 +72,11 @@ services:
       - vhost.d:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
+    deploy:
+      replicas: 1
+      placement:
+        constraint:
+          - node.role == manager
     networks:
       - proxy-tier
 
@@ -64,6 +89,11 @@ services:
       - vhost.d:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    deploy:
+      replicas: 1
+      placement:
+        constraint:
+          - node.role == manager
     environment:
       - ACME_TOS_HASH=cc88d8d9517f490191401e7b54e9ffd12a2b9082ec7a1d4cec6101f9f1647e7b
     networks:
@@ -79,6 +109,11 @@ services:
         - /var/run/docker.sock:/var/run/docker.sock
       ports:
         - 9000:9000
+      deploy:
+        replicas: 1
+        placement:
+          constraint:
+            - node.role == manager
 
   prosody:
     image: rpi-prosody
@@ -98,6 +133,12 @@ services:
       - VIRTUAL_HOST=itprojekt-nextcloud.duckdns.org
       - LETSENCRYPT_HOST=itprojekt-nextcloud.duckdns.org
       - LETSENCRYPT_EMAIL=hendrik.boerste@gmail.com
+    deploy:
+      replicas: 1
+      placement:
+        constraint:
+          - node.role == worker
+
 
 volumes:
   db:
