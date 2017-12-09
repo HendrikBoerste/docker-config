@@ -9,7 +9,7 @@ services:
     deploy:
       replicas: 1
       placement:
-        constraints: [node.role == manager]
+        constraints: [node.role == worker]
     environment:
       - MYSQL_ROOT_PASSWORD=test123
     env_file:
@@ -56,11 +56,6 @@ services:
     ports:
       - 80:80
       - 443:443
-      - 5000:50000
-      - 5222:5222
-      - 5269:5269
-      - 5280:5280
-      - 5281:5281
     labels:
       com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
     volumes:
@@ -130,7 +125,7 @@ services:
     deploy:
       replicas: 1
       placement:
-        constraints: [node.role == manager]
+        constraints: [node.role == worker]
 
 
 volumes:
