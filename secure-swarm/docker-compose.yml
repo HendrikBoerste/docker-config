@@ -30,7 +30,7 @@ services:
       - db
 
   web:
-    image: secure_web
+    image: hendrikboerste/nginx-web
     restart: always
     volumes:
       - nextcloud:/var/www/html:ro
@@ -49,7 +49,7 @@ services:
       - default
 
   proxy:
-    image: secure_proxy
+    image: hendrikboerste/rpi-nginx-proxy
     restart: always
     ports:
       - 80:80
@@ -70,7 +70,7 @@ services:
       - proxy-tier
 
   letsencrypt-companion:
-    image: rpi-docker-letsencrypt-nginx-proxy-companion
+    image: hendrikboerste/rpi-nginx-letsencrypt
     restart: always
     volumes:
       - certs:/etc/nginx/certs
@@ -100,6 +100,18 @@ services:
         replicas: 1
         placement:
           constraints: [node.role == manager]
+
+  backup:
+    image: hendrikboerste/cron-backup
+    volumes:
+      - nextcloud:/volume
+      - /home/pi/backup:/backup
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+    depends_on:
+      - app
 
 volumes:
   db:
