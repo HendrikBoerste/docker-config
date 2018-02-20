@@ -1,0 +1,125 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+    restart: always
+    volumes:
+      - db:/var/lib/postgresql/data
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == worker]
+    env_file:
+      - db.env
+
+  app:
+    image: nextcloud:fpm
+    restart: always
+    volumes:
+      - nextcloud:/var/www/html
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+    environment:
+      - POSTGRES_HOST=db
+    env_file:
+      - db.env
+    depends_on:
+      - db
+
+  web:
+    image: hendrikboerste/nginx-web
+    restart: always
+    volumes:
+      - nextcloud:/var/www/html:ro
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+    environment:
+      - VIRTUAL_HOST=itprojekt-nextcloud.duckdns.org
+      - LETSENCRYPT_HOST=itprojekt-nextcloud.duckdns.org
+      - LETSENCRYPT_EMAIL=hendrik.boerste@gmail.com
+    depends_on:
+      - app
+    networks:
+      - proxy-tier
+      - default
+
+  proxy:
+    image: hendrikboerste/rpi-nginx-proxy
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    labels:
+      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+    volumes:
+      - certs:/etc/nginx/certs:ro
+      - conf.d:/etc/nginx/conf.d
+      - vhost.d:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - proxy-tier
+
+  letsencrypt-companion:
+    image: hendrikboerste/rpi-nginx-letsencrypt
+    restart: always
+    volumes:
+      - certs:/etc/nginx/certs
+      - conf.d:/etc/nginx/conf.d
+      - vhost.d:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+    environment:
+      - ACME_TOS_HASH=cc88d8d9517f490191401e7b54e9ffd12a2b9082ec7a1d4cec6101f9f1647e7b
+    networks:
+      - proxy-tier
+    depends_on:
+      - proxy
+
+  portainer:
+      image: portainer/portainer
+      restart: always
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+      ports:
+        - 9000:9000
+      deploy:
+        replicas: 1
+        placement:
+          constraints: [node.role == manager]
+
+  backup:
+    image: hendrikboerste/cron-backup
+    volumes:
+      - nextcloud:/volume
+      - /home/pi/backup:/backup
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+    depends_on:
+      - app
+
+volumes:
+  db:
+  nextcloud:
+  certs:
+  conf.d:
+  vhost.d:
+  html:
+
+networks:
+  proxy-tier:
